@@ -1,0 +1,1 @@
+//loại tin tức
