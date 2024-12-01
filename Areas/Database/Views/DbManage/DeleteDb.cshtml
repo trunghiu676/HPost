@@ -1,3 +1,9 @@
+@using App.Menu
+@inject AdminSidebarService _AdminSidebarService
+@{
+    Layout = "/Views/Shared/_LayoutAdmin.cshtml";
+}
+
 @{
     ViewData["Title"] = "Xóa Db";
 }
@@ -10,5 +16,11 @@
         Xóa Db
     </button>
     <hr>
-    <a asp-action="Index">Quản lý Db</a>
 </form>
+<a asp-action="Index">Quản lý Db</a>
+@{
+    _AdminSidebarService.SetActive("DbManage", "Index", "Database");
+}
+@section Sidebar {
+    @Html.Raw(_AdminSidebarService.renderHtml())
+}
