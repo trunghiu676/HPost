@@ -2,19 +2,37 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using App.Models.Provinces;
 using App.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace App.ViewComponents
 {
-    public class AddressSelectorViewComponent : ViewComponent
+    public class AddressSelector : ViewComponent
     {
+        public class AddressSelectorData
+        {
+            [Required(ErrorMessage = "Vui lòng chọn tỉnh/thành phố")]
+            [Display(Name = "Tỉnh/Thành phố")]
+            public string? ProvinceCode { get; set; }
+
+            [Required(ErrorMessage = "Vui lòng chọn quận/huyện")]
+            [Display(Name = "Quận/Huyện")]
+            public string? DistrictCode { get; set; }
+
+            [Required(ErrorMessage = "Vui lòng chọn phường/xã")]
+            [Display(Name = "Phường/Xã")]
+            public string? WardCode { get; set; }
+        }
         private readonly AppDbContext _context;
 
-        public AddressSelectorViewComponent(AppDbContext context)
+        public AddressSelector(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string? selectedProvinceCode, string? selectedDistrictCode, string? selectedWardCode)
+        public async Task<IViewComponentResult> InvokeAsync(
+                                                            string? selectedProvinceCode,
+                                                            string? selectedDistrictCode,
+                                                            string? selectedWardCode)
         {
             // Lấy danh sách tỉnh/thành
             var provinces = await _context.Provinces

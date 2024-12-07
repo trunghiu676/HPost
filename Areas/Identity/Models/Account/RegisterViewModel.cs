@@ -35,5 +35,24 @@ namespace App.Areas.Identity.Models.AccountViewModels
         [StringLength(100, ErrorMessage = "{0} phải dài từ {2} đến {1} ký tự.", MinimumLength = 3)]
         public string UserName { get; set; }
 
+        [DataType(DataType.Text)]
+        [Display(Name = "Địa chỉ", Prompt = "Địa chỉ")]
+        [Required(ErrorMessage = "Phải nhập {0}")]
+        [StringLength(400, ErrorMessage = "{0} phải dài từ {2} đến {1} ký tự.", MinimumLength = 3)]
+        public string AddressDetail { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn tỉnh/thành phố")]
+        [Display(Name = "Tỉnh/Thành phố")]
+        public string? ProvinceCode { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn quận/huyện")]
+        [Display(Name = "Quận/Huyện")]
+        public string? DistrictCode { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn phường/xã")]
+        [Display(Name = "Phường/Xã")]
+        public string? WardCode { get; set; }
+
+
     }
 }
