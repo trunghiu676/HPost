@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using App.Models.Orders;
 using App.Models.Locations;
+using App.Models.Blog;
 
 namespace App.Models
 {
@@ -31,6 +32,26 @@ namespace App.Models
                 }
             }
 
+            //Các bảng trong Blog
+            // Đánh chỉ mục INDEX cột Slug bảng Category trong db => tìm kiếm nhanh hơn
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasIndex(p => p.Slug)
+                      .IsUnique();
+            });
+            //tao khoa chinh cho postcategory tu post id va categoryid
+            modelBuilder.Entity<PostCategory>(entity =>
+            {
+                entity.HasKey(c => new { c.PostID, c.CategoryID });
+            });
+
+            // Đánh chỉ mục INDEX cột Slug bảng Post trong db => tìm kiếm nhanh hơn
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.HasIndex(p => p.Slug)
+                      .IsUnique(); //thiet lap chi muc nay la duy nhat, khong duoc phep co 2 bai post co slug giong nhau
+            });
+
             //Các bảng tỉnh thành và khu vực
             // Tạo chỉ mục
             // modelBuilder.Entity<Province>()
@@ -52,6 +73,11 @@ namespace App.Models
         public DbSet<Province> Provinces { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<Ward> Wards { get; set; }
+
+        //Cac bang trong blog - tin tuc
+        public DbSet<Category> Categories { set; get; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<PostCategory> PostCategories { get; set; }
     }
 
 }

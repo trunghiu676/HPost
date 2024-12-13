@@ -6,6 +6,7 @@ using App.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,13 +111,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();//truy cập file tĩnh
 
 // //cấu hình quản lý thư mục Uploads
-// app.UseStaticFiles(new StaticFileOptions()
-// {
-//     FileProvider = new PhysicalFileProvider(
-//         Path.Combine(Directory.GetCurrentDirectory(), "Uploads")
-//     ),
-//     RequestPath = "/uploads"
-// });
+app.UseStaticFiles(new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Uploads")
+    ),
+    RequestPath = "/contents"
+});
 
 // app.UseSession();//Kích hoạt session
 

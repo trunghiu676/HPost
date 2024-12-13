@@ -21,7 +21,7 @@ using Microsoft.Extensions.Logging;
 
 namespace App.Areas.Identity.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [Area("Identity")]
     [Route("/Account/[action]")]
     public class AccountController : Controller

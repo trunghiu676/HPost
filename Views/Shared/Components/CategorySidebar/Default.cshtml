@@ -1,0 +1,44 @@
+@* Nội  dung component  *@
+@using App.Components
+@model App.Components.CategorySidebar.CategorySidebarData
+@{ 
+    int level = Model.level;
+}
+@if (Model.Categories.Count > 0)
+{
+    @if (level == 0)
+    {
+        @Html.Raw("<div class=\"categorysidebar\">");
+        <h3><a asp-controller="ViewPost" asp-action="Index" asp-route-categoryslug="">
+            Tất cả chuyên mục
+        </a>
+        </h3>    
+    }
+    <ul>
+        @foreach (var category in Model.Categories)
+        {
+            //kiểm tra để in đậm chuyên mục đang truy cập
+            var cssActive = (category.Slug == Model.categoryslug) ? "active" : null;
+            <li>
+                <a class="@cssActive" asp-controller="ViewPost" asp-action="Index" asp-route-categoryslug="@category.Slug">
+                    @category.Title
+                </a>
+                @if (category.CategoryChildren?.Count > 0)
+                {
+                    //Gọi đệ quy, nếu chưa render các danh mục con thì render hết
+                        @await Component.InvokeAsync("App.Components.CategorySidebar", 
+                            new CategorySidebar.CategorySidebarData()
+                            {
+                                Categories = category.CategoryChildren.ToList(),
+                                level = level + 1,
+                                categoryslug = ViewBag.categoryslug
+                            })
+                }
+            </li>
+        }
+    </ul>
+    @if (level == 0)
+    {
+        @Html.Raw("</div>");
+    }
+}

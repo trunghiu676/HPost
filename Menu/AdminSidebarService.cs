@@ -20,15 +20,15 @@ namespace App.Menu
             Items.Add(new SidebarItem() { Type = SidebarItemType.Divider });
             Items.Add(new SidebarItem() { Type = SidebarItemType.Heading, Title = "Quản lý chung" });
 
-            // Items.Add(new SidebarItem()
-            // {
-            //     Type = SidebarItemType.NavItem,
-            //     Controller = "DbManage",
-            //     Action = "Index",
-            //     Area = "Database",
-            //     Title = "Quản lý Database",
-            //     AwesomeIcon = "fas fa-database"
-            // });
+            Items.Add(new SidebarItem()
+            {
+                Type = SidebarItemType.NavItem,
+                Controller = "DbManage",
+                Action = "Index",
+                Area = "Database",
+                Title = "Quản lý Database",
+                AwesomeIcon = "fas fa-database"
+            });
             // Items.Add(new SidebarItem()
             // {
             //     Type = SidebarItemType.NavItem,
@@ -72,44 +72,44 @@ namespace App.Menu
             });
             Items.Add(new SidebarItem() { Type = SidebarItemType.Divider });
 
-            // Items.Add(new SidebarItem()
-            // {
-            //     Type = SidebarItemType.NavItem,
-            //     Title = "Quản lý bài viết",
-            //     AwesomeIcon = "far fa-folder",
-            //     collapseID = "blog",
-            //     Items = new List<SidebarItem>() {
-            //             new SidebarItem() {
-            //                     Type = SidebarItemType.NavItem,
-            //                     Controller = "Category",
-            //                     Action = "Index",
-            //                     Area = "Blog",
-            //                     Title = "Các chuyên mục"
-            //             },
-            //              new SidebarItem() {
-            //                     Type = SidebarItemType.NavItem,
-            //                     Controller = "Category",
-            //                     Action = "Create",
-            //                     Area = "Blog",
-            //                     Title = "Tạo chuyên mục"
-            //             },
-            //             new SidebarItem() {
-            //                     Type = SidebarItemType.NavItem,
-            //                     Controller = "Post",
-            //                     Action = "Index",
-            //                     Area = "Blog",
-            //                     Title = "Các bài viết"
-            //             },
-            //             new SidebarItem() {
-            //                     Type = SidebarItemType.NavItem,
-            //                     Controller = "Post",
-            //                     Action = "Create",
-            //                     Area = "Blog",
-            //                     Title = "Tạo bài viết"
-            //             },
-            //         },
-            // });
-            // Items.Add(new SidebarItem() { Type = SidebarItemType.Divider });
+            Items.Add(new SidebarItem()
+            {
+                Type = SidebarItemType.NavItem,
+                Title = "Quản lý bài viết",
+                AwesomeIcon = "far fa-folder",
+                collapseID = "blog",
+                Items = new List<SidebarItem>() {
+                        new SidebarItem() {
+                                Type = SidebarItemType.NavItem,
+                                Controller = "Category",
+                                Action = "Index",
+                                Area = "Blog",
+                                Title = "Các chuyên mục"
+                        },
+                         new SidebarItem() {
+                                Type = SidebarItemType.NavItem,
+                                Controller = "Category",
+                                Action = "Create",
+                                Area = "Blog",
+                                Title = "Tạo chuyên mục"
+                        },
+                        new SidebarItem() {
+                                Type = SidebarItemType.NavItem,
+                                Controller = "Post",
+                                Action = "Index",
+                                Area = "Blog",
+                                Title = "Các bài viết"
+                        },
+                        new SidebarItem() {
+                                Type = SidebarItemType.NavItem,
+                                Controller = "Post",
+                                Action = "Create",
+                                Area = "Blog",
+                                Title = "Tạo bài viết"
+                        },
+                    },
+            });
+            Items.Add(new SidebarItem() { Type = SidebarItemType.Divider });
             // Items.Add(new SidebarItem()
             // {
             //     Type = SidebarItemType.NavItem,

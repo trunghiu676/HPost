@@ -1,24 +1,25 @@
 @using Microsoft.EntityFrameworkCore
 @using System.Data
-@inject AppDbContext dbContext
 
 @using App.Menu
 @inject AdminSidebarService _AdminSidebarService
 
+@inject AppDbContext dbContext
+
 @{
     Layout = "/Views/Shared/_LayoutAdmin.cshtml";
-    ViewData["Title"] = "Thông tin Db";
+    ViewData["Title"] = "Thong tin db";
     var connect = dbContext.Database.GetDbConnection();
     var dbname = connect.Database;
     var can_connect = dbContext.Database.CanConnect();
+
 }
 <partial name="_AlertMessage" />
-<h2>Thông tin</h2>
 <p>- Database: @dbname</p>
 <p>- Source: @connect.DataSource</p>
 <p>- State: @connect.State</p>
 <hr>
-<h2>Migrations</h2>
+<h2>Migration</h2>
 @foreach (var migration in dbContext.Database.GetAppliedMigrations())
 {
     <p>@migration</p>
@@ -29,27 +30,27 @@
 }
 @if (!can_connect)
 {
-    <p class="alert alert-danger">Không có khả năng kết nối đến Database</p>
+    <p class="alert alert-danger">Khong co kha nang ket noi den databse </p>
 }
 @if (dbContext.Database.GetPendingMigrations().Any())
 {
     <form method="post">
-    <button class="btn btn-success" asp-action="Migrate">Tạo Db (Cập nhật migration)</button>
+    <button class="btn btn-success" asp-action="Migrate">Tao db(cap nhat Migration)</button>
 </form>
-
 }
 @if (can_connect)
 {
-    <h2>Các Table</h2>
+    <h2>Cac table</h2>
     await dbContext.Database.OpenConnectionAsync();
     var table = dbContext.Database.GetDbConnection().GetSchema("Tables");
     <ul>
-    @foreach (System.Data.DataRow row in table.Rows)
+    @foreach (System.Data.DataRow item in table.Rows)
         {
-            <li>@row["TABLE_NAME"]</li>
+            <li>@item["TABLE_NAME"]</li>
         }
     </ul>
-    <a class="btn btn-danger" asp-action="DeleteDb">Xóa Db: @dbname</a>
+    <a class="btn btn-danger" asp-action="DeleteDb">Xoa database: @dbname</a>
+    <a class="btn btn-success" asp-action="SeedData">Seed Data: @dbname</a>
 }
 
 @{

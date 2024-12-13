@@ -22,6 +22,108 @@ namespace HPost.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("App.Models.Blog.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Avatar")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ParentCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Category", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Blog.Post", b =>
+                {
+                    b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
+
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Published")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Post", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Blog.PostCategory", b =>
+                {
+                    b.Property<int>("PostID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostID", "CategoryID");
+
+                    b.HasIndex("CategoryID");
+
+                    b.ToTable("PostCategory", (string)null);
+                });
+
             modelBuilder.Entity("App.Models.Provinces.AdministrativeRegion", b =>
                 {
                     b.Property<int>("Id")
@@ -50,7 +152,7 @@ namespace HPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdministrativeRegions");
+                    b.ToTable("AdministrativeRegions", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Provinces.AdministrativeUnit", b =>
@@ -87,7 +189,7 @@ namespace HPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdministrativeUnits");
+                    b.ToTable("AdministrativeUnits", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Provinces.District", b =>
@@ -129,7 +231,7 @@ namespace HPost.Migrations
 
                     b.HasIndex("ProvinceCode");
 
-                    b.ToTable("Districts");
+                    b.ToTable("Districts", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Provinces.Province", b =>
@@ -172,7 +274,7 @@ namespace HPost.Migrations
 
                     b.HasIndex("AdministrativeUnitId");
 
-                    b.ToTable("Provinces");
+                    b.ToTable("Provinces", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Provinces.Ward", b =>
@@ -214,7 +316,7 @@ namespace HPost.Migrations
 
                     b.HasIndex("DistrictCode");
 
-                    b.ToTable("Wards");
+                    b.ToTable("Wards", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.UserManagement.AppUser", b =>
@@ -441,6 +543,43 @@ namespace HPost.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("App.Models.Blog.Category", b =>
+                {
+                    b.HasOne("App.Models.Blog.Category", "ParentCategory")
+                        .WithMany("CategoryChildren")
+                        .HasForeignKey("ParentCategoryId");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("App.Models.Blog.Post", b =>
+                {
+                    b.HasOne("App.Models.UserManagement.AppUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("App.Models.Blog.PostCategory", b =>
+                {
+                    b.HasOne("App.Models.Blog.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Blog.Post", "Post")
+                        .WithMany("PostCategories")
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("App.Models.Provinces.District", b =>
                 {
                     b.HasOne("App.Models.Provinces.AdministrativeUnit", "AdministrativeUnit")
@@ -556,6 +695,16 @@ namespace HPost.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("App.Models.Blog.Category", b =>
+                {
+                    b.Navigation("CategoryChildren");
+                });
+
+            modelBuilder.Entity("App.Models.Blog.Post", b =>
+                {
+                    b.Navigation("PostCategories");
                 });
 
             modelBuilder.Entity("App.Models.Provinces.AdministrativeRegion", b =>

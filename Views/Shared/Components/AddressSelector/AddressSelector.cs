@@ -4,7 +4,7 @@ using App.Models.Provinces;
 using App.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace App.ViewComponents
+namespace App.Components
 {
     public class AddressSelector : ViewComponent
     {
