@@ -14,7 +14,12 @@
     <div class="col-md-8">
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+            
+            <div class="form-group">
+                <label asp-for="Keyword" class="control-label"></label>
+                <input asp-for="Keyword" class="form-control" />
+                <span asp-validation-for="Keyword" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="ParentCategoryId" class="control-label"></label>
                 <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId"></select>
@@ -25,22 +30,57 @@
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <textarea rows="5" asp-for="Description" class="form-control"></textarea>
+                <textarea rows="3" asp-for="Description" class="form-control"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
-             <div class="form-group">
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <textarea rows="5" asp-for="Content" class="form-control"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="Slug" class="control-label"></label>
                 <input asp-for="Slug" class="form-control" />
                 <span asp-validation-for="Slug" class="text-danger"></span>
             </div>
+            <span>Tối ưu seo</span>
+            <div class="form-group">
+                <label asp-for="SeoTitle" class="control-label"></label>
+                <input asp-for="SeoTitle" class="form-control" />
+                <span asp-validation-for="SeoTitle" class="text-danger"></span>
+            </div>
 
             <div class="form-group">
-                <label asp-for="FileUpload"></label>
-                <input asp-for="FileUpload" type="file" class="form-control" accept=".png,.jpg,.jpeg,.gif" />
+                <label asp-for="SeoDescription" class="control-label"></label>
+                <textarea rows="3" asp-for="SeoDescription" class="form-control"></textarea>
+                <span asp-validation-for="SeoDescription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="FileUpload">Ảnh đại diện</label>
+                <input asp-for="FileUpload" type="file" class="form-control" id="fileUpload"
+                    accept=".png,.jpg,.jpeg,.gif" />
+                <img id="previewImage" src="#" alt="Xem trước hình ảnh"
+                    style="display:none; max-width:200px; margin-top:10px;" />
                 <span asp-validation-for="FileUpload" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                </label>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IndexFollow" /> @Html.DisplayNameFor(model =>
+                    model.IndexFollow)
+                </label>
             </div>
 
             <div class="form-group">
@@ -53,13 +93,33 @@
 <div>
     <a asp-action="Index">Danh sách chuyên mục</a>
 </div>
+@section Scripts {
+    <script src="~/lib/multiple-select/multiple-select.min.js"></script>
+    <link rel="stylesheet" href="~/lib/multiple-select/multiple-select.min.css" />
+    <script>
+        document.getElementById('fileUpload').addEventListener('change', function (event) {
+            const previewImage = document.getElementById('previewImage');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = "#";
+                previewImage.style.display = 'none';
+            }
+        });
+    </script>
+}
 
 
 
-
-@* Thêm để sử dụng editor summernote cho Description *@
+@* Thêm để sử dụng editor summernote cho Content *@
 @{
-    var summernote = new App.Models.Summernote("#Description")
+    var summernote = new App.Models.Summernote("#Content")
             {
                 height = 400
             };

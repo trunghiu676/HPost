@@ -48,7 +48,7 @@ namespace AppMvc.Areas.Files.Controllers
         {
             // Thư mục gốc lưu trữ là wwwwroot/files (đảm bảo có tạo thư mục này)
             string pathroot = "Uploads";
-            string requestUrl = "contents";
+            string requestUrl = "Uploads";
 
             var driver = new FileSystemDriver();
 
@@ -66,7 +66,7 @@ namespace AppMvc.Areas.Files.Controllers
 
 
 
-            var root = new RootVolume( rootDirectory, url, urlthumb)
+            var root = new RootVolume(rootDirectory, url, urlthumb)
             {
                 //IsReadOnly = !User.IsInRole("Administrators")
                 IsReadOnly = false, // Can be readonly according to user's membership permission

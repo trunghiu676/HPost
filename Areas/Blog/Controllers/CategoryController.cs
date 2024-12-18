@@ -109,7 +109,7 @@ namespace AppMvc.Net.Areas.Blog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,Slug,ParentCategoryId,FileUpload")] Category category)
+        public async Task<IActionResult> Create([Bind("Keyword,Title,Description,Content,Slug,SeoTitle,SeoDescription,ParentCategoryId,Status,IndexFollow,FileUpload")] Category category)
         {
             if (ModelState.IsValid)
             {
@@ -124,8 +124,12 @@ namespace AppMvc.Net.Areas.Blog.Controllers
 
                 if (category.FileUpload != null)
                 {
-                    // Sử dụng category.Id sau khi lưu để tạo tên file
-                    var fileName = category.FileUpload.FileName + "-" + category.Id;
+                    // Tách phần tên và phần mở rộng
+                    string originalFileName = Path.GetFileNameWithoutExtension(category.FileUpload.FileName); // Lấy tên tệp không bao gồm phần mở rộng
+                    string fileExtension = Path.GetExtension(category.FileUpload.FileName); // Lấy phần mở rộng của tệp (bao gồm dấu '.')
+
+                    // Tạo tên tệp mới theo định dạng: tên-gốc-{id}.phần-mở-rộng
+                    string fileName = $"{originalFileName}-{category.Id}{fileExtension}";
 
                     // Tạo đường dẫn
                     var uploadsFolder = Path.Combine("Uploads", "Blogs");
@@ -154,10 +158,6 @@ namespace AppMvc.Net.Areas.Blog.Controllers
             return View(category);
         }
 
-
-
-
-
         // GET: Blog/Category/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -183,7 +183,7 @@ namespace AppMvc.Net.Areas.Blog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Slug,ParentCategoryId")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Keyword,Title,Description,Content,Slug,SeoTitle,SeoDescription,ParentCategoryId,Status,IndexFollow,FileUpload")] Category category)
         {
             if (id != category.Id)
             {
@@ -192,45 +192,39 @@ namespace AppMvc.Net.Areas.Blog.Controllers
 
             bool canUpdate = true;
 
+            // Kiểm tra trường hợp danh mục cha không hợp lệ
             if (category.ParentCategoryId == category.Id)
             {
                 ModelState.AddModelError(string.Empty, "Phải chọn danh mục cha khác");
                 canUpdate = false;
             }
 
-            // Kiem tra thiet lap muc cha phu hop
+            // Kiểm tra vòng lặp cha-con
             if (canUpdate && category.ParentCategoryId != null)
             {
-                var childCates =
-                            (from c in _context.Categories select c)
-                            .Include(c => c.CategoryChildren)
-                            .ToList()
-                            .Where(c => c.ParentCategoryId == category.Id);
+                var childCategories = _context.Categories
+                    .Include(c => c.CategoryChildren)
+                    .Where(c => c.ParentCategoryId == category.Id)
+                    .ToList();
 
-
-                // Func check Id 
-                Func<List<Category>, bool> checkCateIds = null;
-                checkCateIds = (cates) =>
+                Func<List<Category>, bool> hasInvalidParent = null;
+                hasInvalidParent = (categories) =>
+                {
+                    foreach (var cat in categories)
                     {
-                        foreach (var cate in cates)
+                        if (cat.Id == category.ParentCategoryId)
                         {
-                            Console.WriteLine(cate.Title);
-                            if (cate.Id == category.ParentCategoryId)
-                            {
-                                canUpdate = false;
-                                ModelState.AddModelError(string.Empty, "Phải chọn danh mục cha khácXX");
-                                return true;
-                            }
-                            if (cate.CategoryChildren != null)
-                                return checkCateIds(cate.CategoryChildren.ToList());
-
+                            canUpdate = false;
+                            ModelState.AddModelError(string.Empty, "Phải chọn danh mục cha khác");
+                            return true;
                         }
-                        return false;
-                    };
-                // End Func 
-                checkCateIds(childCates.ToList());
+                        if (cat.CategoryChildren != null)
+                            return hasInvalidParent(cat.CategoryChildren.ToList());
+                    }
+                    return false;
+                };
+                hasInvalidParent(childCategories);
             }
-
 
             if (ModelState.IsValid && canUpdate)
             {
@@ -239,8 +233,52 @@ namespace AppMvc.Net.Areas.Blog.Controllers
                     if (category.ParentCategoryId == -1)
                         category.ParentCategoryId = null;
 
-                    var dtc = _context.Categories.FirstOrDefault(c => c.Id == id);
-                    _context.Entry(dtc).State = EntityState.Detached;
+                    // Lấy dữ liệu cũ từ database
+                    var existingCategory = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                    if (existingCategory == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Xử lý file upload (nếu có)
+                    if (category.FileUpload != null)
+                    {
+                        // Tách phần tên và phần mở rộng
+                        string originalFileName = Path.GetFileNameWithoutExtension(category.FileUpload.FileName); // Lấy tên tệp không bao gồm phần mở rộng
+                        string fileExtension = Path.GetExtension(category.FileUpload.FileName); // Lấy phần mở rộng của tệp (bao gồm dấu '.')
+
+                        // Tạo tên tệp mới theo định dạng: tên-gốc-{id}.phần-mở-rộng
+                        string fileName = $"{originalFileName}-{category.Id}{fileExtension}";
+
+                        // Tạo đường dẫn
+                        var uploadsFolder = Path.Combine("Uploads", "Blogs");
+                        Directory.CreateDirectory(uploadsFolder); // Đảm bảo thư mục tồn tại
+                        var filePath = Path.Combine(uploadsFolder, fileName);
+
+                        // Lưu file mới
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await category.FileUpload.CopyToAsync(fileStream);
+                        }
+
+                        // Xóa file cũ (nếu tồn tại)
+                        if (!string.IsNullOrEmpty(existingCategory.Avatar))
+                        {
+                            var oldFilePath = Path.Combine(uploadsFolder, existingCategory.Avatar);
+                            if (System.IO.File.Exists(oldFilePath))
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                        }
+
+                        // Cập nhật Avatar
+                        category.Avatar = fileName;
+                    }
+                    else
+                    {
+                        // Giữ nguyên Avatar cũ nếu không có file mới
+                        category.Avatar = existingCategory.Avatar;
+                    }
 
                     _context.Update(category);
                     await _context.SaveChangesAsync();
@@ -260,9 +298,9 @@ namespace AppMvc.Net.Areas.Blog.Controllers
             }
 
             await PrepareSelectListAsync();
-
             return View(category);
         }
+
 
         // GET: Blog/Category/Delete/5
         public async Task<IActionResult> Delete(int? id)

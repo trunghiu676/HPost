@@ -116,7 +116,7 @@ app.UseStaticFiles(new StaticFileOptions()
     FileProvider = new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "Uploads")
     ),
-    RequestPath = "/contents"
+    RequestPath = "/Uploads"
 });
 
 // app.UseSession();//Kích hoạt session
