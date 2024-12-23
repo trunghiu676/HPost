@@ -6,22 +6,26 @@
 @{
     ViewData["Title"] = "Thêm bài viết Blog";
     var list = ViewData["categories"] as MultiSelectList;
-    Layout =  "/Views/Shared/_LayoutAdmin.cshtml";
+    Layout = "/Views/Shared/_LayoutAdmin.cshtml";
 }
 
 <h1>@ViewData["Title"]</h1>
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="form-group">
                 <label asp-for="CategoryIDs" class="control-label"></label>
                 <select asp-for="CategoryIDs" multiple="multiple" asp-items="list" class="w-100"></select>
                 <span asp-validation-for="CategoryIDs" class="text-danger"></span>
-            </div>        
-
+            </div>
+            <div class="form-group">
+                <label asp-for="Keyword" class="control-label"></label>
+                <input asp-for="Keyword" class="form-control" />
+                <span asp-validation-for="Keyword" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" id="Title" />
@@ -32,19 +36,50 @@
                 <textarea asp-for="Description" class="form-control"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" id="Slug" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
+
             <div class="form-group">
                 <label asp-for="Content" class="control-label"></label>
                 <textarea asp-for="Content" class="form-control"></textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
+            <span>Tối ưu seo</span>
+            <div class="form-group">
+                <label asp-for="SeoTitle" class="control-label"></label>
+                <input asp-for="SeoTitle" class="form-control" />
+                <span asp-validation-for="SeoTitle" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SeoDescription" class="control-label"></label>
+                <textarea rows="3" asp-for="SeoDescription" class="form-control"></textarea>
+                <span asp-validation-for="SeoDescription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="FileUpload">Ảnh đại diện</label>
+                <input asp-for="FileUpload" type="file" class="form-control" id="fileUpload"
+                    accept=".png,.jpg,.jpeg,.gif" />
+                <img id="previewImage" src="#" alt="Xem trước hình ảnh"
+                    style="display:none; max-width:200px; margin-top:10px;" />
+                <span asp-validation-for="FileUpload" class="text-danger"></span>
+            </div>
+
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Published" /> @Html.DisplayNameFor(model => model.Published)
+                    <input class="form-check-input" asp-for="IndexFollow" /> @Html.DisplayNameFor(model =>
+                    model.IndexFollow)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Slug" class="control-label"></label>
+                <input asp-for="Slug" class="form-control" id="Slug" />
+                <span asp-validation-for="Slug" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Published" /> @Html.DisplayNameFor(model =>
+                    model.Published)
                 </label>
             </div>
 
@@ -69,29 +104,29 @@
             str = str.trim().toLowerCase();
 
             // Danh sách các ký tự thay thế
-            const decomposed = ["à","á","ạ","ả","ã","â","ầ","ấ","ậ","ẩ","ẫ","ă","ằ","ắ","ặ","ẳ","ẵ",
-                                "è","é","ẹ","ẻ","ẽ","ê","ề","ế","ệ","ể","ễ", 
-                                "ì","í","ị","ỉ","ĩ", "ò","ó","ọ","ỏ","õ","ô",
-                                "ồ","ố","ộ","ổ","ỗ","ơ","ờ","ớ","ợ","ở","ỡ",
-                                "ù","ú","ụ","ủ","ũ","ư","ừ","ứ","ự","ử","ữ",
-                                "ỳ","ý","ỵ","ỷ","ỹ", "đ", 
-                                "À","Á","Ạ","Ả","Ã","Â","Ầ","Ấ","Ậ","Ẩ","Ẫ","Ă",
-                                "Ằ","Ắ","Ặ","Ẳ","Ẵ", "È","É","Ẹ","Ẻ","Ẽ","Ê",
-                                "Ề","Ế","Ệ","Ể","Ễ", "Ì","Í","Ị","Ỉ","Ĩ",
-                                "Ò","Ó","Ọ","Ỏ","Õ","Ô","Ồ","Ố","Ộ","Ổ","Ỗ",
-                                "Ơ","Ờ","Ớ","Ợ","Ở","Ỡ", "Ù","Ú","Ụ","Ủ","Ũ",
-                                "Ư","Ừ","Ứ","Ự","Ử","Ữ", "Ỳ","Ý","Ỵ","Ỷ","Ỹ", "Đ"];
+            const decomposed = ["à", "á", "ạ", "ả", "ã", "â", "ầ", "ấ", "ậ", "ẩ", "ẫ", "ă", "ằ", "ắ", "ặ", "ẳ", "ẵ",
+                "è", "é", "ẹ", "ẻ", "ẽ", "ê", "ề", "ế", "ệ", "ể", "ễ",
+                "ì", "í", "ị", "ỉ", "ĩ", "ò", "ó", "ọ", "ỏ", "õ", "ô",
+                "ồ", "ố", "ộ", "ổ", "ỗ", "ơ", "ờ", "ớ", "ợ", "ở", "ỡ",
+                "ù", "ú", "ụ", "ủ", "ũ", "ư", "ừ", "ứ", "ự", "ử", "ữ",
+                "ỳ", "ý", "ỵ", "ỷ", "ỹ", "đ",
+                "À", "Á", "Ạ", "Ả", "Ã", "Â", "Ầ", "Ấ", "Ậ", "Ẩ", "Ẫ", "Ă",
+                "Ằ", "Ắ", "Ặ", "Ẳ", "Ẵ", "È", "É", "Ẹ", "Ẻ", "Ẽ", "Ê",
+                "Ề", "Ế", "Ệ", "Ể", "Ễ", "Ì", "Í", "Ị", "Ỉ", "Ĩ",
+                "Ò", "Ó", "Ọ", "Ỏ", "Õ", "Ô", "Ồ", "Ố", "Ộ", "Ổ", "Ỗ",
+                "Ơ", "Ờ", "Ớ", "Ợ", "Ở", "Ỡ", "Ù", "Ú", "Ụ", "Ủ", "Ũ",
+                "Ư", "Ừ", "Ứ", "Ự", "Ử", "Ữ", "Ỳ", "Ý", "Ỵ", "Ỷ", "Ỹ", "Đ"];
 
-            const latin = ["a","a","a","a","a","a","a","a","a","a","a","a","a",
-                           "a","a","a","a","e","e","e","e","e","e","e","e","e",
-                           "e","e","i","i","i","i","i","o","o","o","o","o","o",
-                           "o","o","o","o","o","o","o","o","o","u","u","u","u",
-                           "u","u","u","u","u","u","u","y","y","y","y","y","d",
-                           "a","a","a","a","a","a","a","a","a","a","a","a","a",
-                           "a","a","a","e","e","e","e","e","e","e","e","e","e",
-                           "e","i","i","i","i","i","o","o","o","o","o","o","o",
-                           "o","o","o","o","o","o","o","o","o","u","u","u","u",
-                           "u","u","u","u","u","u","u","y","y","y","y","y","d"];
+            const latin = ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a",
+                "a", "a", "a", "a", "e", "e", "e", "e", "e", "e", "e", "e", "e",
+                "e", "e", "i", "i", "i", "i", "i", "o", "o", "o", "o", "o", "o",
+                "o", "o", "o", "o", "o", "o", "o", "o", "o", "u", "u", "u", "u",
+                "u", "u", "u", "u", "u", "u", "u", "y", "y", "y", "y", "y", "d",
+                "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a",
+                "a", "a", "a", "e", "e", "e", "e", "e", "e", "e", "e", "e", "e",
+                "e", "i", "i", "i", "i", "i", "o", "o", "o", "o", "o", "o", "o",
+                "o", "o", "o", "o", "o", "o", "o", "o", "o", "u", "u", "u", "u",
+                "u", "u", "u", "u", "u", "u", "u", "y", "y", "y", "y", "y", "d"];
 
             for (let i = 0; i < decomposed.length; i++) {
                 str = str.replace(new RegExp(decomposed[i], 'g'), latin[i]);
@@ -99,7 +134,7 @@
 
             // Loại bỏ ký tự đặc biệt và thay thế khoảng trắng bằng "-"
             str = str.replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
-            
+
             return str;
         }
 
@@ -107,12 +142,34 @@
         document.getElementById("Title").addEventListener("input", function () {
             const titleValue = this.value;
             document.getElementById("Slug").value = generateSlug(titleValue);
+            document.getElementById("SeoTitle").value = titleValue;
+        });
+        document.getElementById("Description").addEventListener("keyup", function () {
+            const description = this.value;
+            document.getElementById("SeoDescription").value = description;
         });
 
         $("#CategoryIDs").multipleSelect({
             selectAll: false,
             keepOpen: false,
             isOpen: false,
+        });
+
+        //upload hinh anh
+        document.getElementById('fileUpload').addEventListener('change', function (event) {
+            const previewImage = document.getElementById('previewImage');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = "#";
+                previewImage.style.display = 'none';
+            }
         });
     </script>
 

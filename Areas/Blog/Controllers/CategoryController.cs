@@ -111,6 +111,11 @@ namespace AppMvc.Net.Areas.Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Keyword,Title,Description,Content,Slug,SeoTitle,SeoDescription,ParentCategoryId,Status,IndexFollow,FileUpload")] Category category)
         {
+             if (await _context.Categories.AnyAsync(C => C.Slug == category.Slug))
+            {
+                ModelState.AddModelError("Slug", "Nhập chuỗi Url khác");
+                return View(category);
+            }
             if (ModelState.IsValid)
             {
                 if (category.ParentCategoryId == -1)
