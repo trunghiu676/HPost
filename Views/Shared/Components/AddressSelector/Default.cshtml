@@ -1,0 +1,123 @@
+@model App.Components.AddressSelector.AddressSelectorData
+
+<div class="css_select_div">
+    <!-- Tỉnh/Thành -->
+    <select class="css_select form-control" id="province" asp-for="ProvinceCode">
+        <option value="">Chọn Tỉnh Thành</option>
+        @foreach (var province in (IEnumerable<dynamic>)ViewBag.Provinces)
+        {
+            var isSelected = ViewBag.SelectedProvinceCode?.ToString() == province.Code ? "selected" : "";
+            <option value="@province.Code" isSelected>
+                @province.FullName
+            </option>
+        }
+    </select>
+    <span asp-validation-for="ProvinceCode" class="text-danger"></span>
+
+
+    <!-- Quận/Huyện -->
+    <select class="css_select form-control" id="district" asp-for="DistrictCode">
+        <option value="">Chọn Quận Huyện</option>
+        @if (ViewBag.Districts != null)
+        {
+            foreach (var district in (IEnumerable<dynamic>)ViewBag.Districts)
+            {
+                @* var isSelected = ViewBag.SelectedDistrictCode?.ToString() == district.Code ? "selected" : ""; *@
+                <option value="@district.Code">
+                    @district.FullName
+                </option>
+            }
+        }
+    </select>
+    <span asp-validation-for="DistrictCode" class="text-danger"></span>
+
+
+    <!-- Xã/Phường -->
+    <select class="css_select form-control" id="ward" asp-for="WardCode">
+        <option value="">Chọn Phường Xã</option>
+        @if (ViewBag.Wards != null)
+        {
+            foreach (var ward in (IEnumerable<dynamic>)ViewBag.Wards)
+            {
+                @* var isSelected = ViewBag.SelectedWardCode?.ToString() == ward.Code ? "selected" : ""; *@
+                <option value="@ward.Code">
+                    @ward.FullName
+                </option>
+            }
+        }
+    </select>
+    <span asp-validation-for="WardCode" class="text-danger"></span>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Gọi khi khởi tạo nếu đã có giá trị được chọn
+        var selectedProvinceCode = '@ViewBag.SelectedProvinceCode';
+        var selectedDistrictCode = '@ViewBag.SelectedDistrictCode';
+        var selectedWardCode = '@ViewBag.SelectedWardCode';
+
+        if (selectedProvinceCode) {
+            $('#province').val(selectedProvinceCode); // Set giá trị đã chọn
+            loadDistricts(selectedProvinceCode, selectedDistrictCode);
+
+            if (selectedDistrictCode) {
+                loadWards(selectedDistrictCode, selectedWardCode);
+            }
+        }
+
+        // Khi thay đổi tỉnh/thành
+        $('#province').change(function () {
+            var provinceCode = $(this).val();
+            $('#district').html('<option value="">Chọn Quận Huyện</option>'); // Reset Quận/Huyện
+            $('#ward').html('<option value="">Chọn Phường Xã</option>');     // Reset Phường/Xã
+
+            if (provinceCode) {
+                loadDistricts(provinceCode, null);
+            }
+        });
+
+        // Khi thay đổi quận/huyện
+        $('#district').change(function () {
+            var districtCode = $(this).val();
+            $('#ward').html('<option value="">Chọn Phường Xã</option>');     // Reset Phường/Xã
+
+            if (districtCode) {
+                loadWards(districtCode, null);
+            }
+        });
+
+        // Hàm tải danh sách quận/huyện
+        function loadDistricts(provinceCode, selectedDistrictCode) {
+            if (provinceCode) {
+                $.getJSON(`/api/provinces/${provinceCode}/districts`, function (data) {
+                    $('#district').html('<option value="">Chọn Quận Huyện</option>');
+                    $.each(data, function (index, district) {
+                        var selected = district.code === selectedDistrictCode ? "selected" : "";
+                        $('#district').append('<option value="' + district.code + '" ' + selected + '>' + district.fullName + '</option>');
+                    });
+                }).fail(function () {
+                    alert("Lỗi khi tải danh sách Quận/Huyện!");
+                });
+            }
+        }
+
+        // Hàm tải danh sách phường/xã
+        function loadWards(districtCode, selectedWardCode) {
+            if (districtCode) {
+                $.getJSON(`/api/provinces/districts/${districtCode}/wards`, function (data) {
+                    $('#ward').html('<option value="">Chọn Phường Xã</option>');
+                    $.each(data, function (index, ward) {
+                        var selected = ward.code === selectedWardCode ? "selected" : "";
+                        $('#ward').append('<option value="' + ward.code + '" ' + selected + '>' + ward.fullName + '</option>');
+                    });
+                }).fail(function () {
+                    alert("Lỗi khi tải danh sách Phường/Xã!");
+                });
+            }
+        }
+    });
+
+
+
+</script>

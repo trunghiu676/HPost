@@ -1,0 +1,143 @@
+@model App.Models.Blog.Category
+
+@using App.Menu
+@inject AdminSidebarService _AdminSidebarService
+@{
+    ViewData["Title"] = "Sửa đổi chuyên mục";
+    Layout = "/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Keyword" class="control-label"></label>
+                <input asp-for="Keyword" class="form-control" />
+                <span asp-validation-for="Keyword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ParentCategoryId" class="control-label"></label>
+                <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId"></select>
+                <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea rows="3" asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <textarea rows="5" asp-for="Content" class="form-control"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Slug" class="control-label"></label>
+                <input asp-for="Slug" class="form-control" />
+                <span asp-validation-for="Slug" class="text-danger"></span>
+            </div>
+
+            <span>Tối ưu seo</span>
+            <div class="form-group">
+                <label asp-for="SeoTitle" class="control-label"></label>
+                <input asp-for="SeoTitle" class="form-control" />
+                <span asp-validation-for="SeoTitle" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SeoDescription" class="control-label"></label>
+                <textarea rows="3" asp-for="SeoDescription" class="form-control"></textarea>
+                <span asp-validation-for="SeoDescription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="FileUpload">Cập nhật ảnh đại diện mới</label>
+                <input asp-for="FileUpload" type="file" class="form-control" id="fileUpload" accept=".png,.jpg,.jpeg,.gif" />
+
+                @if (!string.IsNullOrEmpty(Model.Avatar))
+                {
+                    <p>Ảnh hiện tại:</p>
+                    <img id="currentImage" src="~/Uploads/Blogs/@Model.Avatar" alt="Ảnh hiện tại" style="max-width:200px; margin-top:10px;" />
+                }
+                <img id="previewImage" src="#" alt="Xem trước hình ảnh mới" style="display:none; max-width:200px; margin-top:10px;" />
+                <span asp-validation-for="FileUpload" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                </label>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IndexFollow" /> @Html.DisplayNameFor(model =>
+                    model.IndexFollow)
+                </label>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Lưu" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Danh sách chuyên mục</a>
+</div>
+
+@section Scripts {
+    <script>
+        //js hiển thị hình ảnh avatar
+        document.getElementById('fileUpload').addEventListener('change', function (event) {
+            const previewImage = document.getElementById('previewImage');
+            const currentImage = document.getElementById('currentImage');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                    if (currentImage) {
+                        currentImage.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = "#";
+                previewImage.style.display = 'none';
+                if (currentImage) {
+                    currentImage.style.display = 'block';
+                }
+            }
+        });
+    </script>
+}
+@* Thêm để sử dụng editor summernote cho Description *@
+@{
+    var summernote = new App.Models.Summernote("#Content")
+            {
+                height = 400
+            };
+}
+<partial name="_Summernote" model="summernote" />
+
+@{
+    _AdminSidebarService.SetActive("Category", "Index", "Blog");
+}
+@section Sidebar
+{
+    @Html.Raw(_AdminSidebarService.renderHtml())
+}

@@ -5,4 +5,19 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    @* @await Component.InvokeAsync("AddressSelector") *@
+    @* @await Component.InvokeAsync("AddressSelector", new
+        {
+            selectedProvinceCode = Model.ProvinceCode,
+            selectedDistrictCode = Model.DistrictCode,
+            selectedWardCode = Model.WardCode
+        }) *@
+<br> <hr>
+    @await Component.InvokeAsync("AddressSelector", new
+        {
+            selectedProvinceCode = "02",
+            selectedDistrictCode = "031",
+            selectedWardCode = "00991"
+        })
+
 </div>

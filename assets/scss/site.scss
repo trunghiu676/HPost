@@ -1,0 +1,32 @@
+.css_select_div {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; // Khoảng cách giữa các ô
+
+  label {
+    font-size: 0.8rem; // Kích thước nhãn đồng bộ
+    font-weight: bold; // Làm nổi bật nhãn
+    margin-bottom: 0.5rem; // Khoảng cách nhãn và ô
+  }
+
+  .css_select {
+    font-size: 0.8rem; // Kích thước chữ
+    border-radius: 10rem; // Bo góc
+    padding: 0.9rem 1rem; // Khoảng cách trong ô
+    border: 1px solid #ced4da; // Đường viền
+    width: 100%; // Chiếm toàn bộ chiều rộng
+    height: auto; // Tự động theo nội dung
+    line-height: 1.5; // Đảm bảo nội dung căn giữa
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); // Đổ bóng
+    transition: all 0.2s ease-in-out; // Hiệu ứng mượt
+
+    &:hover {
+      background-color: #e9ecef; // Màu nền khi hover
+    }
+  }
+}
+
+@import "menu";
+@import "footer";
+@import "post";
+@import "product";

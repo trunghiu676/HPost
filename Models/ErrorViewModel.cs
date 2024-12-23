@@ -1,4 +1,4 @@
-namespace HPost.Models;
+namespace App.Models;
 
 public class ErrorViewModel
 {
