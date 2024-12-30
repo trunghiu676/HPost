@@ -5,7 +5,7 @@ namespace AppMvc.Areas.Blog.Models
 {
     public class CreatePostModel : Post
     {
-        [Display(Name = "Chuyên mục")]
+        [Display(Name = "Chuyên mục phụ")]
         public int[]? CategoryIDs { get; set; }
 
     }

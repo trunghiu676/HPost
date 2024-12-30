@@ -44,6 +44,12 @@ namespace App.Models
             {
                 entity.HasKey(c => new { c.PostID, c.CategoryID });
             });
+            //thêm khóa ngoại trường categoryid cho post
+            modelBuilder.Entity<Post>()
+                        .HasOne(p => p.Category)
+                        .WithMany(c => c.Posts)
+                        .HasForeignKey(p => p.CategoryId)
+                        .OnDelete(DeleteBehavior.NoAction); // Thay đổi hành vi xóa, các mục con không bị xóa khi xóa cha
 
             // Đánh chỉ mục INDEX cột Slug bảng Post trong db => tìm kiếm nhanh hơn
             modelBuilder.Entity<Post>(entity =>

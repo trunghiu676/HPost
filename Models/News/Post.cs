@@ -33,8 +33,6 @@ namespace App.Models.Blog
         [Display(Name = "Nội dung")]
         public string? Content { set; get; }
 
-
-
         //hình đại diện
         [Display(Name = "Hình ảnh đại diện")]
         [StringLength(255, ErrorMessage = "{0} không được dài quá {1} ký tự")]
@@ -77,17 +75,21 @@ namespace App.Models.Blog
 
         // [Required]
         [Display(Name = "Tác giả")]
-        public string? AuthorId { set; get; } = "abc";
+        public string? AuthorId { set; get; }
         [ForeignKey("AuthorId")]
         [Display(Name = "Tác giả")]
         public AppUser? Author { set; get; }
-
-
 
         [Display(Name = "Ngày tạo")]
         public DateTime? DateCreated { set; get; }
 
         [Display(Name = "Ngày cập nhật")]
         public DateTime? DateUpdated { set; get; }
+
+        [Display(Name = "Chuyên mục chính")]
+        [Required(ErrorMessage = "Phải chọn chuyên mục chính")]
+        [ForeignKey(nameof(Category))]
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
     }
 }

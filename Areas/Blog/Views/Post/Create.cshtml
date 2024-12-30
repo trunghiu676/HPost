@@ -15,12 +15,18 @@
     <div class="col-md-12">
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="All" class="text-danger"></div>
-
+            <div class="form-group">
+                <label asp-for="CategoryId"></label>
+                <select asp-for="CategoryId" asp-items="@ViewBag.Categories1" class="form-control"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            
             <div class="form-group">
                 <label asp-for="CategoryIDs" class="control-label"></label>
                 <select asp-for="CategoryIDs" multiple="multiple" asp-items="list" class="w-100"></select>
                 <span asp-validation-for="CategoryIDs" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Keyword" class="control-label"></label>
                 <input asp-for="Keyword" class="form-control" />

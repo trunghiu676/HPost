@@ -103,6 +103,8 @@ namespace App.Areas.Blog.Controllers
         {
             var categories = await _context.Categories.ToListAsync();
 
+            ViewBag.Categories1 = new SelectList(_context.Categories, "Id", "Title");
+
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
 
             return View();
@@ -113,7 +115,7 @@ namespace App.Areas.Blog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Keyword,Title,Description,Slug,Content,Published,CategoryIDs,SeoTitle,SeoDescription,IndexFollow,FileUpload")] CreatePostModel postModel)
+        public async Task<IActionResult> Create([Bind("Keyword,Title,Description,Slug,Content,Published,CategoryId,CategoryIDs,SeoTitle,SeoDescription,IndexFollow,FileUpload")] CreatePostModel postModel)
         {
             var categories = await _context.Categories.ToListAsync();
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
@@ -142,7 +144,8 @@ namespace App.Areas.Blog.Controllers
                     AuthorId = user.Id,
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
-                };
+                    CategoryId = postModel.CategoryId
+                };  
 
                 _context.Add(post);
 
@@ -223,10 +226,12 @@ namespace App.Areas.Blog.Controllers
                 Avatar = post.Avatar,
                 AuthorId = post.AuthorId,
                 IndexFollow = post.IndexFollow,
+                CategoryId = post.CategoryId,
                 CategoryIDs = post.PostCategories.Select(pc => pc.CategoryID).ToArray()
             };
 
             var categories = await _context.Categories.ToListAsync();
+            ViewBag.Categories1 = new SelectList(categories, "Id", "Title");
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
 
             return View(postEdit);
@@ -235,7 +240,7 @@ namespace App.Areas.Blog.Controllers
         // POST: Blog/Post/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PostId,Keyword,Title,Description,Slug,Content,Published,CategoryIDs,SeoTitle,SeoDescription,IndexFollow,FileUpload")] CreatePostModel post)
+        public async Task<IActionResult> Edit(int id, [Bind("PostId,Keyword,Title,Description,Slug,Content,Published,CategoryId,CategoryIDs,SeoTitle,SeoDescription,IndexFollow,FileUpload")] CreatePostModel post)
         {
             if (id != post.PostId)
             {
@@ -243,6 +248,7 @@ namespace App.Areas.Blog.Controllers
             }
             var categories = await _context.Categories.ToListAsync();
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
+            ViewBag.Categories1 = new SelectList(categories, "Id", "Title");
 
 
             if (await _context.Posts.AnyAsync(p => p.Slug == post.Slug && p.PostId != id))
@@ -272,8 +278,9 @@ namespace App.Areas.Blog.Controllers
                     postUpdate.SeoDescription = post.SeoDescription;
                     postUpdate.IndexFollow = post.IndexFollow;
                     postUpdate.DateUpdated = DateTime.Now;
+                    postUpdate.CategoryId = post.CategoryId; 
 
-                    // Update PostCategory
+                    // Cập nhật danh mục phụ
                     if (post.CategoryIDs == null) post.CategoryIDs = new int[] { };
 
                     var oldCateIds = postUpdate.PostCategories.Select(c => c.CategoryID).ToArray();
