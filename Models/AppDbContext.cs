@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using App.Models.Orders;
 using App.Models.Locations;
 using App.Models.Blog;
+using App.Models.Services;
 
 namespace App.Models
 {
@@ -58,6 +59,12 @@ namespace App.Models
                       .IsUnique(); //thiet lap chi muc nay la duy nhat, khong duoc phep co 2 bai post co slug giong nhau
             });
 
+            modelBuilder.Entity<Service>(entity =>
+            {
+                entity.HasIndex(s => s.Slug)
+                      .IsUnique();
+            });
+
             //Các bảng tỉnh thành và khu vực
             // Tạo chỉ mục
             // modelBuilder.Entity<Province>()
@@ -84,6 +91,9 @@ namespace App.Models
         public DbSet<Category> Categories { set; get; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostCategory> PostCategories { get; set; }
+        //Các bảng dịch vụ
+        public DbSet<ServiceType> ServiceTypes { get; set; }
+        public DbSet<Service> Services { get; set; }
     }
 
 }
