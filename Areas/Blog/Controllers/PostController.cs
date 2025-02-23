@@ -103,6 +103,8 @@ namespace App.Areas.Blog.Controllers
         {
             var categories = await _context.Categories.ToListAsync();
 
+            ViewBag.Categories1 = new SelectList(_context.Categories, "Id", "Title");
+
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
 
             return View();
@@ -113,15 +115,10 @@ namespace App.Areas.Blog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,Slug,Content,Published,CategoryIDs")] CreatePostModel postModel)
+        public async Task<IActionResult> Create([Bind("Keyword,Title,Description,Slug,Content,Published,CategoryId,CategoryIDs,SeoTitle,SeoDescription,IndexFollow,FileUpload")] CreatePostModel postModel)
         {
             var categories = await _context.Categories.ToListAsync();
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
-
-            if (postModel.Slug == null)
-            {
-                postModel.Slug = AppUtilities.GenerateSlug(postModel.Title);
-            }
 
             if (await _context.Posts.AnyAsync(p => p.Slug == postModel.Slug))
             {
@@ -135,15 +132,20 @@ namespace App.Areas.Blog.Controllers
 
                 var post = new Post
                 {
+                    Keyword = postModel.Keyword,
                     Title = postModel.Title,
                     Description = postModel.Description,
                     Slug = postModel.Slug,
                     Content = postModel.Content,
                     Published = postModel.Published,
+                    SeoTitle = postModel.SeoTitle,
+                    SeoDescription = postModel.SeoDescription,
+                    IndexFollow = postModel.IndexFollow,
                     AuthorId = user.Id,
                     DateCreated = DateTime.Now,
                     DateUpdated = DateTime.Now,
-                };
+                    CategoryId = postModel.CategoryId
+                };  
 
                 _context.Add(post);
 
@@ -160,6 +162,33 @@ namespace App.Areas.Blog.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                if (postModel.FileUpload != null)
+                {
+                    // Tách phần tên và phần mở rộng
+                    string originalFileName = Path.GetFileNameWithoutExtension(postModel.FileUpload.FileName); // Lấy tên tệp không bao gồm phần mở rộng
+                    string fileExtension = Path.GetExtension(postModel.FileUpload.FileName); // Lấy phần mở rộng của tệp (bao gồm dấu '.')
+
+                    // Tạo tên tệp mới theo định dạng: tên-gốc-{id}.phần-mở-rộng
+                    string fileName = $"{originalFileName}-{post.PostId}{fileExtension}";
+
+                    // Tạo đường dẫn
+                    var uploadsFolder = Path.Combine("Uploads", "Post");
+                    Directory.CreateDirectory(uploadsFolder); // Đảm bảo thư mục tồn tại
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    // Tạo file
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await postModel.FileUpload.CopyToAsync(fileStream);
+                    }
+
+                    // Cập nhật tên file vào thuộc tính Avatar
+                    post.Avatar = fileName;
+
+                    // Cập nhật lại thông tin category
+                    _context.Update(post);
+                    await _context.SaveChangesAsync();
+                }
                 StatusMessage = "Vừa tạo bài viết mới";
                 return RedirectToAction(nameof(Index));
             }
@@ -191,21 +220,27 @@ namespace App.Areas.Blog.Controllers
                 Description = post.Description,
                 Slug = post.Slug,
                 Published = post.Published,
+                Keyword = post.Keyword,
+                SeoTitle = post.SeoTitle,
+                SeoDescription = post.SeoDescription,
+                Avatar = post.Avatar,
+                AuthorId = post.AuthorId,
+                IndexFollow = post.IndexFollow,
+                CategoryId = post.CategoryId,
                 CategoryIDs = post.PostCategories.Select(pc => pc.CategoryID).ToArray()
             };
 
             var categories = await _context.Categories.ToListAsync();
+            ViewBag.Categories1 = new SelectList(categories, "Id", "Title");
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
 
             return View(postEdit);
         }
 
         // POST: Blog/Post/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PostId,Title,Description,Slug,Content,Published,CategoryIDs")] CreatePostModel post)
+        public async Task<IActionResult> Edit(int id, [Bind("PostId,Keyword,Title,Description,Slug,Content,Published,CategoryId,CategoryIDs,SeoTitle,SeoDescription,IndexFollow,FileUpload")] CreatePostModel post)
         {
             if (id != post.PostId)
             {
@@ -213,12 +248,8 @@ namespace App.Areas.Blog.Controllers
             }
             var categories = await _context.Categories.ToListAsync();
             ViewData["categories"] = new MultiSelectList(categories, "Id", "Title");
+            ViewBag.Categories1 = new SelectList(categories, "Id", "Title");
 
-
-            if (post.Slug == null)
-            {
-                post.Slug = AppUtilities.GenerateSlug(post.Title);
-            }
 
             if (await _context.Posts.AnyAsync(p => p.Slug == post.Slug && p.PostId != id))
             {
@@ -231,21 +262,25 @@ namespace App.Areas.Blog.Controllers
             {
                 try
                 {
-
                     var postUpdate = await _context.Posts.Include(p => p.PostCategories).FirstOrDefaultAsync(p => p.PostId == id);
                     if (postUpdate == null)
                     {
                         return NotFound();
                     }
 
+                    postUpdate.Keyword = post.Keyword;
                     postUpdate.Title = post.Title;
                     postUpdate.Description = post.Description;
                     postUpdate.Content = post.Content;
                     postUpdate.Published = post.Published;
                     postUpdate.Slug = post.Slug;
+                    postUpdate.SeoTitle = post.SeoTitle;
+                    postUpdate.SeoDescription = post.SeoDescription;
+                    postUpdate.IndexFollow = post.IndexFollow;
                     postUpdate.DateUpdated = DateTime.Now;
+                    postUpdate.CategoryId = post.CategoryId; 
 
-                    // Update PostCategory
+                    // Cập nhật danh mục phụ
                     if (post.CategoryIDs == null) post.CategoryIDs = new int[] { };
 
                     var oldCateIds = postUpdate.PostCategories.Select(c => c.CategoryID).ToArray();
@@ -267,6 +302,41 @@ namespace App.Areas.Blog.Controllers
                             PostID = id,
                             CategoryID = CateId
                         });
+                    }
+
+                    // Xử lý file upload (nếu có)
+                    if (post.FileUpload != null)
+                    {
+                        // Tách phần tên và phần mở rộng
+                        string originalFileName = Path.GetFileNameWithoutExtension(post.FileUpload.FileName); // Lấy tên tệp không bao gồm phần mở rộng
+                        string fileExtension = Path.GetExtension(post.FileUpload.FileName); // Lấy phần mở rộng của tệp (bao gồm dấu '.')
+
+                        // Tạo tên tệp mới theo định dạng: tên-gốc-{id}.phần-mở-rộng
+                        string fileName = $"{originalFileName}-{post.PostId}{fileExtension}";
+
+                        // Tạo đường dẫn
+                        var uploadsFolder = Path.Combine("Uploads", "Post");
+                        Directory.CreateDirectory(uploadsFolder); // Đảm bảo thư mục tồn tại
+                        var filePath = Path.Combine(uploadsFolder, fileName);
+
+                        // Lưu file mới
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await post.FileUpload.CopyToAsync(fileStream);
+                        }
+
+                        // Xóa file cũ (nếu tồn tại)
+                        if (!string.IsNullOrEmpty(postUpdate.Avatar))
+                        {
+                            var oldFilePath = Path.Combine(uploadsFolder, postUpdate.Avatar);
+                            if (System.IO.File.Exists(oldFilePath))
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                        }
+
+                        // Cập nhật Avatar
+                        postUpdate.Avatar = fileName;
                     }
 
                     _context.Update(postUpdate);

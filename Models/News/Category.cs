@@ -86,6 +86,9 @@ namespace App.Models.Blog
     [Display(Name = "Danh mục cha")]
     public Category? ParentCategory { set; get; }
 
+    //Danh sách post thuộc cate
+    public ICollection<Post>? Posts { get; set; }
+
     //Những category con thuộc category
     public void ChildCategoryIDs(ICollection<Category> childcates, List<int> lists)
     {
